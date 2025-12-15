@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TMV Logistics Thesis Analysis | Diego Moca</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a1612;
+            --bg-card: #0f1f1a;
+            --bg-elevated: #142822;
+            --accent: #4ecdc4;
+            --accent-dim: #3ba89f;
+            --text-primary: #f5f7f6;
+            --text-secondary: #9ca8a5;
+            --text-muted: #5c6b67;
+            --border: #1e3530;
+            --green: #22c55e;
+            --amber: #f59e0b;
+            --red: #ef4444;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 22, 18, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 0.85em;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 120px 40px 80px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .hero-label {
+            font-size: 0.8em;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-family: 'EB Garamond', Georgia, serif;
+            font-size: clamp(2.5em, 5vw, 4em);
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 28px;
+            max-width: 800px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15em;
+            color: var(--text-secondary);
+            max-width: 600px;
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .meta-label {
+            font-size: 0.75em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .meta-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Sections */
+        section {
+            padding: 80px 40px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 48px;
+        }
+
+        .section-label {
+            font-size: 0.75em;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-family: 'EB Garamond', Georgia, serif;
+            font-size: 2.2em;
+            font-weight: 400;
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+
+        /* Thesis Framework */
+        .thesis-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .thesis-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .thesis-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--accent);
+        }
+
+        .thesis-number {
+            font-family: 'EB Garamond', serif;
+            font-size: 3em;
+            color: var(--border);
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            font-style: italic;
+        }
+
+        .thesis-card h3 {
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .thesis-card p {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.7;
+        }
+
+        .thesis-evidence {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 0.85em;
+            color: var(--text-muted);
+        }
+
+        /* Portfolio Analysis */
+        .portfolio-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 32px;
+        }
+
+        .portfolio-table th {
+            text-align: left;
+            padding: 16px 20px;
+            font-size: 0.75em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+        }
+
+        .portfolio-table td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        .portfolio-table tr:hover {
+            background: var(--bg-card);
+        }
+
+        .company-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .company-name a {
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .company-name a:hover {
+            color: var(--accent);
+        }
+
+        .company-link {
+            color: var(--text-muted);
+            font-size: 0.8em;
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            font-size: 0.75em;
+            border-radius: 2px;
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+        }
+
+        .thesis-match {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        /* Pipeline Section */
+        .pipeline-intro {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent);
+            padding: 28px 32px;
+            margin-bottom: 40px;
+        }
+
+        .pipeline-intro p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .pipeline-intro strong {
+            color: var(--text-primary);
+        }
+
+        .pipeline-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .deal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 28px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 24px;
+            transition: border-color 0.2s;
+        }
+
+        .deal-card:hover {
+            border-color: var(--accent-dim);
+        }
+
+        .deal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .deal-name {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .deal-name a {
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .deal-name a:hover {
+            color: var(--accent);
+        }
+
+        .deal-meta {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .deal-description {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        .deal-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .deal-tag {
+            font-size: 0.75em;
+            padding: 4px 10px;
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border-radius: 2px;
+        }
+
+        .deal-score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 100px;
+        }
+
+        .deal-score {
+            font-family: 'EB Garamond', serif;
+            font-size: 2.5em;
+            font-weight: 500;
+            color: var(--accent);
+        }
+
+        .deal-rating {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .rating-high { color: var(--green); }
+        .rating-medium { color: var(--amber); }
+        .rating-low { color: var(--red); }
+
+        /* About Section */
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        .about-text p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .about-text strong {
+            color: var(--text-primary);
+        }
+
+        .about-highlights {
+            background: var(--bg-card);
+            padding: 32px;
+            border: 1px solid var(--border);
+        }
+
+        .about-highlights h4 {
+            font-size: 0.85em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .highlight-item {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .highlight-item:last-child {
+            border-bottom: none;
+        }
+
+        .highlight-label {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .highlight-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 40px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .thesis-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .deal-card {
+                grid-template-columns: 1fr;
+            }
+
+            .deal-score-container {
+                flex-direction: row;
+                gap: 12px;
+                justify-content: flex-start;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            section {
+                padding: 60px 24px;
+            }
+
+            .hero {
+                padding: 100px 24px 60px;
+            }
+
+            .nav-inner {
+                padding: 16px 24px;
+            }
+
+            .hero-meta {
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-inner">
+            <div class="nav-brand"><img src="data:image/webp;base64,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" alt="TMV" style="height: 28px; width: auto;"></div>
+            <div class="nav-links">
+                <a href="#thesis">Thesis</a>
+                <a href="#portfolio">Portfolio</a>
+                <a href="#pipeline">Pipeline</a>
+                <a href="#about">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-label">Investment Thesis Analysis</div>
+        <h1>Deconstructing TMV's Maritime & Logistics Investment Framework</h1>
+        <p class="hero-subtitle">
+            A systematic analysis of TMV's portfolio patterns, thesis signals, and prospective deal flow in maritime technology and supply chain visibility.
+        </p>
+        <div class="hero-meta">
+            <div class="meta-item">
+                <span class="meta-label">Portfolio Analyzed</span>
+                <span class="meta-value">12 Logistics Companies</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Pipeline Sourced</span>
+                <span class="meta-value">6 Emerging Opportunities</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Prepared By</span>
+                <span class="meta-value">Diego Moca</span>
+            </div>
+            
+        </div>
+    </header>
+
+    <section id="thesis">
+        <div class="section-header">
+            <div class="section-label">01 — Investment Framework</div>
+            <h2 class="section-title">Thesis Patterns from Portfolio Analysis</h2>
+            <p class="section-desc">Derived from analyzing Marina Hadjipateras's led investments across TMV Fund I and Fund II.</p>
+        </div>
+
+        <div class="thesis-grid">
+            <div class="thesis-card">
+                <span class="thesis-number">01</span>
+                <h3>Visibility & Analytics First</h3>
+                <p>TMV consistently backs platforms that transform fragmented maritime data into actionable intelligence. Not marketplaces—software that creates transparency.</p>
+                <div class="thesis-evidence">Evidence: Portcast (ETA prediction), Nautilus Labs (fleet analytics), Trackstar (API visibility)</div>
+            </div>
+
+            <div class="thesis-card">
+                <span class="thesis-number">02</span>
+                <h3>Seed to Series A Sweet Spot</h3>
+                <p>$500K–$2M checks into companies with product-market fit signals but pre-scale. Marina's operational background enables hands-on value-add at this stage.</p>
+                <div class="thesis-evidence">Evidence: Led OpenTug Seed ($2.2M), Portcast Pre-A ($3.2M), Secro Seed</div>
+            </div>
+
+            <div class="thesis-card">
+                <span class="thesis-number">03</span>
+                <h3>Sustainability as Efficiency</h3>
+                <p>Not ESG theater—investments where carbon reduction is a byproduct of operational efficiency. Fuel savings = cost savings = emission reduction.</p>
+                <div class="thesis-evidence">Evidence: Nautilus Labs (route optimization), Portcast (slow steaming insights)</div>
+            </div>
+
+            <div class="thesis-card">
+                <span class="thesis-number">04</span>
+                <h3>Global Trade Infrastructure</h3>
+                <p>Companies building digital rails for international shipping: documentation, crew logistics, port operations. Problems Marina understands from Dorian LPG.</p>
+                <div class="thesis-evidence">Evidence: Secro (eBLs), Greywing (crew changes), Harbor Lab (port costs)</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="portfolio">
+        <div class="section-header">
+            <div class="section-label">02 — Portfolio Deep Dive</div>
+            <h2 class="section-title">TMV Maritime & Logistics Investments</h2>
+            <p class="section-desc">Companies where TMV participated in maritime/logistics verticals, analyzed for thesis alignment.</p>
+        </div>
+
+        <table class="portfolio-table">
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Category</th>
+                    <th>Thesis Alignment</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="company-name"><a href="https://www.portcast.io/" target="_blank">Portcast ↗</a></div>
+                        <div class="company-link">Singapore · Series A · $9.7M raised</div>
+                    </td>
+                    <td><span class="category-tag">Visibility</span></td>
+                    <td class="thesis-match">Predictive ETA and demand forecasting. ML-driven supply chain visibility. TMV invested Pre-A and followed on at Series A.</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="company-name"><a href="https://nautiluslabs.com/" target="_blank">Nautilus Labs ↗</a></div>
+                        <div class="company-link">New York · Series A</div>
+                    </td>
+                    <td><span class="category-tag">Fleet Analytics</span></td>
+                    <td class="thesis-match">Fleet performance optimization using data fusion. Direct fuel efficiency and emissions impact. Marina-led investment.</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="company-name"><a href="https://www.opentug.com/" target="_blank">OpenTug ↗</a></div>
+                        <div class="company-link">Seattle · Seed · $5.3M raised</div>
+                    </td>
+                    <td><span class="category-tag">Maritime Ops</span></td>
+                    <td class="thesis-match">Maritime services marketplace and software. TMV led the $2.2M seed round in 2025. US-based, addressing tug/barge coordination.</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="company-name"><a href="https://www.secro.io/" target="_blank">Secro ↗</a></div>
+                        <div class="company-link">Italy · Seed</div>
+                    </td>
+                    <td><span class="category-tag">Documentation</span></td>
+                    <td class="thesis-match">Digital bills of lading (eBLs). Solving paper-based documentation across 50+ parties per shipment. $6.5B direct cost savings potential.</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="company-name"><a href="https://www.freightify.com/" target="_blank">Freightify ↗</a></div>
+                        <div class="company-link">India/Singapore · Series A</div>
+                    </td>
+                    <td><span class="category-tag">Freight Tech</span></td>
+                    <td class="thesis-match">Rate management and quoting platform for freight forwarders. SaaS model, global expansion from Asia.</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="company-name"><a href="https://www.greywing.co/" target="_blank">Greywing ↗</a></div>
+                        <div class="company-link">Singapore · Seed</div>
+                    </td>
+                    <td><span class="category-tag">Crew Logistics</span></td>
+                    <td class="thesis-match">Crew change automation and travel logistics. Data-driven SaaS for vessel tracking and crew management.</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="company-name"><a href="https://www.shipskart.com/" target="_blank">ShipsKart ↗</a></div>
+                        <div class="company-link">India · Series A</div>
+                    </td>
+                    <td><span class="category-tag">Procurement</span></td>
+                    <td class="thesis-match">Maritime procurement platform. B2B marketplace connecting ship managers with suppliers.</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="company-name"><a href="https://www.trackstarhq.com/" target="_blank">Trackstar ↗</a></div>
+                        <div class="company-link">US · Seed</div>
+                    </td>
+                    <td><span class="category-tag">API/Integration</span></td>
+                    <td class="thesis-match">Universal API for logistics tracking. Aggregates carrier data into single integration layer.</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="pipeline">
+        <div class="section-header">
+            <div class="section-label">03 — Prospective Pipeline</div>
+            <h2 class="section-title">Emerging Opportunities</h2>
+            <p class="section-desc">Recently funded Seed-stage companies that align with TMV's demonstrated investment patterns.</p>
+        </div>
+
+        <div class="pipeline-intro">
+            <p><strong>Methodology:</strong> Sourced from Crunchbase, Tracxn, and industry publications. Filtered for: (1) Seed/Pre-Seed stage, (2) Maritime or supply chain focus, (3) Software/analytics approach, (4) Raised in past 12 months. Scored against TMV thesis patterns above.</p>
+        </div>
+
+        <div class="pipeline-grid">
+            <div class="deal-card">
+                <div class="deal-content">
+                    <div class="deal-header">
+                        <div class="deal-name"><a href="https://www.tilla.io/" target="_blank">Tilla ↗</a></div>
+                    </div>
+                    <div class="deal-meta">Berlin · €4M raised · July 2025 · Motion Ventures led</div>
+                    <p class="deal-description">Maritime crew logistics platform. Digitizes crew changes, travel planning, and compliance. Strong parallels to Greywing (TMV portfolio). Motion Ventures + EXMAR backing signals industry validation.</p>
+                    <div class="deal-tags">
+                        <span class="deal-tag">Crew Logistics</span>
+                        <span class="deal-tag">SaaS</span>
+                        <span class="deal-tag">AI Planning</span>
+                    </div>
+                </div>
+                <div class="deal-score-container">
+                    <div class="deal-score">9.2</div>
+                    <div class="deal-rating rating-high">High Fit</div>
+                </div>
+            </div>
+
+            <div class="deal-card">
+                <div class="deal-content">
+                    <div class="deal-header">
+                        <div class="deal-name"><a href="https://www.opentug.com/" target="_blank">OpenTug (Follow-on) ↗</a></div>
+                    </div>
+                    <div class="deal-meta">Seattle · $5.3M total · TMV already invested</div>
+                    <p class="deal-description">Already in portfolio—included to note potential follow-on opportunity. Maritime marketplace transitioning to software platform. Strong US market position in tug/barge operations.</p>
+                    <div class="deal-tags">
+                        <span class="deal-tag">Portfolio Co</span>
+                        <span class="deal-tag">US Maritime</span>
+                        <span class="deal-tag">Follow-on</span>
+                    </div>
+                </div>
+                <div class="deal-score-container">
+                    <div class="deal-score">—</div>
+                    <div class="deal-rating" style="color: var(--accent);">Existing</div>
+                </div>
+            </div>
+
+            <div class="deal-card">
+                <div class="deal-content">
+                    <div class="deal-header">
+                        <div class="deal-name"><a href="https://www.gallatinai.com/" target="_blank">Gallatin AI ↗</a></div>
+                    </div>
+                    <div class="deal-meta">Washington DC · $15M Pre-Seed · April 2025 · 8VC led</div>
+                    <p class="deal-description">AI-powered military logistics. Predictive analytics for supply chain decisions. Defense focus is adjacent but technology (real-time data, demand prediction) mirrors Portcast patterns.</p>
+                    <div class="deal-tags">
+                        <span class="deal-tag">Defense Tech</span>
+                        <span class="deal-tag">Predictive Analytics</span>
+                        <span class="deal-tag">AI/ML</span>
+                    </div>
+                </div>
+                <div class="deal-score-container">
+                    <div class="deal-score">7.5</div>
+                    <div class="deal-rating rating-medium">Adjacent</div>
+                </div>
+            </div>
+
+            <div class="deal-card">
+                <div class="deal-content">
+                    <div class="deal-header">
+                        <div class="deal-name"><a href="https://www.orbitmi.com/" target="_blank">OrbitMI ↗</a></div>
+                    </div>
+                    <div class="deal-meta">US · Series A stage · Used by Dorian LPG</div>
+                    <p class="deal-description">Fleet performance management platform. AI-driven fuel optimization and emissions tracking. Notable: already used by Marina's family company (Dorian LPG). Strong operator validation.</p>
+                    <div class="deal-tags">
+                        <span class="deal-tag">Fleet Analytics</span>
+                        <span class="deal-tag">Emissions</span>
+                        <span class="deal-tag">Dorian Connection</span>
+                    </div>
+                </div>
+                <div class="deal-score-container">
+                    <div class="deal-score">8.8</div>
+                    <div class="deal-rating rating-high">High Fit</div>
+                </div>
+            </div>
+
+            <div class="deal-card">
+                <div class="deal-content">
+                    <div class="deal-header">
+                        <div class="deal-name"><a href="https://www.harborlabtech.com/" target="_blank">Harbor Lab (Monitor) ↗</a></div>
+                    </div>
+                    <div class="deal-meta">US · Early stage · Port cost automation</div>
+                    <p class="deal-description">Port disbursement accounting automation. Reduces errors in port cost management for charterers. Niche but high-value problem in shipping operations. May already be in TMV orbit.</p>
+                    <div class="deal-tags">
+                        <span class="deal-tag">Port Ops</span>
+                        <span class="deal-tag">FinOps</span>
+                        <span class="deal-tag">Automation</span>
+                    </div>
+                </div>
+                <div class="deal-score-container">
+                    <div class="deal-score">8.5</div>
+                    <div class="deal-rating rating-high">High Fit</div>
+                </div>
+            </div>
+
+            <div class="deal-card">
+                <div class="deal-content">
+                    <div class="deal-header">
+                        <div class="deal-name">Boundary Layer Technologies</div>
+                    </div>
+                    <div class="deal-meta">US · Seed · Hydrofoil cargo ships</div>
+                    <p class="deal-description">Developing electric hydrofoil cargo vessels for coastal freight. Hardware-heavy (atypical for TMV), but decarbonization focus aligns with sustainability thesis. Worth tracking.</p>
+                    <div class="deal-tags">
+                        <span class="deal-tag">Hardware</span>
+                        <span class="deal-tag">Decarbonization</span>
+                        <span class="deal-tag">Electric Propulsion</span>
+                    </div>
+                </div>
+                <div class="deal-score-container">
+                    <div class="deal-score">6.0</div>
+                    <div class="deal-rating rating-medium">Monitor</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="section-header">
+            <div class="section-label">04 — About This Analysis</div>
+            <h2 class="section-title">Why I Built This</h2>
+        </div>
+
+        <div class="about-content">
+            <div class="about-text">
+                <p>I approach deal sourcing the same way I approach analysis—systematically. This document represents how I'd contribute to TMV's pipeline development: <strong>understanding the thesis deeply, then finding companies that fit.</strong></p>
+                
+                <p>My background spans venture capital analysis (Geek Ventures, Palumni VC), startup operations (sold my first company at 22), and quantitative training (MS Business Analytics, graduating May 2026). I'm not a maritime expert—but I know how to deconstruct investment patterns, source efficiently, and evaluate founder claims against technical reality.</p>
+                
+                <p>The maritime/logistics space interests me because it's undergoing the same digitization wave that transformed other industries, but with higher complexity and more entrenched incumbents. TMV's thesis—software-first, sustainability-as-efficiency, global trade infrastructure—makes sense for this moment.</p>
+
+                <p>I'd be excited to bring this systematic approach to TMV's deal flow.</p>
+            </div>
+
+            <div class="about-highlights">
+                <h4>Background</h4>
+                <div class="highlight-item">
+                    <div class="highlight-label">VC Experience</div>
+                    <div class="highlight-value">Geek Ventures, Palumni VC</div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-label">Education</div>
+                    <div class="highlight-value">MS Business Analytics, U of Tampa (May 2026)</div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-label">Previous</div>
+                    <div class="highlight-value">Head of Product, Lighthouse (VC-backed)</div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-label">Founded</div>
+                    <div class="highlight-value">Moke Media Co (exited)</div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-label">Email</div>
+                    <div class="highlight-value">dmocad@gmail.com</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Prepared for TMV Fellowship Application</p>
+        <p style="margin-top: 8px;">Data sourced from Crunchbase, Tracxn, company websites, and TMV public materials.</p>
+    </footer>
+</body>
+</html>
